@@ -85,7 +85,7 @@ function EditUser() {
             if (data.status === 'success') {
                 Swal.fire({
                     icon: "success",
-                    title: "Account Created",
+                    title: "Updated",
                     text: "User has been Updated successfully.",
                 }).then(() => {
                     navigate('/user-list');
