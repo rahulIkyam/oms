@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../config/AuthContext';
 import KPICard from '../../components/KPICard';
 import { FaBoxOpen, FaCheck, FaClipboardCheck, FaSearch, FaTruck } from 'react-icons/fa';
-import noData from '../../../public/assets/nodata.png'
-import buffer from '../../../public/assets/buffer.gif';
+import buffer from '../../assets/buffer.gif';
+import noData from '../../assets/noData.png'
 import authInstance from '../../config/authInstance';
 import { useNavigate } from 'react-router-dom';
 
@@ -31,7 +31,8 @@ function CustomerDashboard() {
     const fetchOrderList = async (page, limit) => {
         try {
             setIsLoading(true);
-            const response = await axiosauth.get(`${auth.company}/order_master/get_all_ordermaster?page=${page}&limit=${limit}`);
+            const url = "https://ordermanagement-empathic-mandrill-be.cfapps.us10-001.hana.ondemand.com/api/GSUS/order_master/get_all_ordermaster_by_customer/{customerId}"
+            const response = await axiosauth.get(`${auth.company}/order_master/get_all_ordermaster_by_customer/${localStorage.getItem('userId')}`);
 
             if (response.status === 200) {
                 const jsonData = response.data;
@@ -102,12 +103,12 @@ function CustomerDashboard() {
     const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
 
     if (isLoading) return (
-        <div className="flex justify-center items-center h-screen">
+        <div className="flex justify-center items-center h-140 ">
             <img src={buffer} alt="Loading..." className="w-50 h-50" />
         </div>
     );
     if (error) return (
-        <div className="flex flex-col justify-center items-center h-screen p-4">
+        <div className="flex flex-col justify-center items-center h-140 p-4">
             <div className="max-w-md p-6 bg-red-50 border border-red-200 rounded-lg text-center">
                 <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Data</h3>
                 <p className="text-red-600">{error}</p>
@@ -201,8 +202,8 @@ function CustomerDashboard() {
                                 <tr>
                                     <td colSpan="6" className="py-8 text-center">
                                         <div className="flex flex-col items-center justify-center">
-                                            <img src={noData} alt="No users found" className="w-32 h-32 mb-4" />
-                                            <p className="text-gray-500 text-lg">No users found</p>
+                                            <img src={noData} alt="No Data found" className="w-60 h-32 mb-4" />
+                                            <p className="text-gray-500 text-lg">No Data found</p>
                                         </div>
                                     </td>
                                 </tr>

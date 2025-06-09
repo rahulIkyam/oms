@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import authInstance from '../../config/authInstance';
 import { FaArrowLeft, FaCalendarAlt } from 'react-icons/fa';
 import { MinusCircle } from 'lucide-react';
-import noData from '../../../public/assets/nodata.png';
-import buffer from '../../../public/assets/buffer.gif';
+import buffer from '../../assets/buffer.gif';
 import Swal from 'sweetalert2';
 import SearchableDropdown from '../../components/SearchableDropdown';
 
@@ -56,12 +55,14 @@ function CustomerOrderCreation() {
 
             setIsLoading(true);
             try {
+                const response2 = await axiosAuth.get(`/public/user/get_and_save_all_customer_data`);
                 const response = await axiosAuth.get(`/public/customer_master/get_all_s4hana_customermaster`);
 
                 if (response.status === 200) {
                     const jsonData = response.data;
 
                     const customer = jsonData.find((item) => item.customer === auth.userId);
+                    console.log(customer);
 
                     if (customer) {
                         setCustomerData({
@@ -221,8 +222,12 @@ function CustomerOrderCreation() {
     const totalAmountSum = rows.reduce((sum, row) => sum + row.totalAmount, 0);
 
     if (isLoading) return (
-        <div className="flex justify-center items-center h-screen">
-            <img src={buffer} alt="Loading..." className="w-50 h-50" />
+        <div className='flex justify-center items-center h-100'>
+            <div className="mt-40 ">
+                <div>
+                    <img src={buffer} alt="Loading..." className="w-50 h-50" />
+                </div>
+            </div>
         </div>
     );
 
@@ -244,6 +249,7 @@ function CustomerOrderCreation() {
                     <button
                         className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
                         onClick={async () => {
+                            console.log(customerData);
                             const isCustomerReady = !!customerData?.customerName;
                             const hasProducts = rows.length > 0;
 

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../config/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import noData from '../../../public/assets/nodata.png';
-import buffer from '../../../public/assets/buffer.gif';
+import buffer from '../../assets/buffer.gif';
+import noData from '../../assets/noData.png'
 import { FaSearch } from 'react-icons/fa';
 import authInstance from '../../config/authInstance';
 import { ArrowRightCircle } from 'lucide-react';
@@ -177,11 +177,12 @@ function EmployeeOrderList() {
                                         <td className="px-4 py-3">{order.contactPerson}</td>
                                         <td className="px-4 py-3">{order.orderDate}</td>
                                         <td className="px-4 py-3">{order.total}</td>
-                                        <td className="px-4 py-3">{order.status}</td>
-                                        <td className="px-4 py-3">{order.salesOrderId}</td>
+
                                         <td className="px-4 py-3">
-                                            {order.salesOrderId !== null ? "synced" : "not synced"}
+                                            {order.salesOrderId !== null ? "Synced" : "Not Synced"}
                                         </td>
+                                        <td className="px-4 py-3">{order.salesOrderId}</td>
+                                        <td className="px-4 py-3">{order.status}</td>
                                         <td className="px-4 py-3">
                                             <button
                                                 onClick={() => {

@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../config/AuthContext'
 import KPICard from '../../components/KPICard';
 import { FaBoxOpen, FaCheck, FaClipboardCheck, FaSearch, FaTruck } from 'react-icons/fa';
-import noData from '../../../public/assets/nodata.png'
+
 import { useNavigate } from 'react-router-dom';
 import authInstance from '../../config/authInstance';
-import buffer from '../../../public/assets/buffer.gif';
+import buffer from '../../assets/buffer.gif';
+import noData from '../../assets/noData.png'
 
 function EmployeeDashboard() {
 
@@ -100,7 +101,7 @@ function EmployeeDashboard() {
   const totalPages = Math.ceil(filteredOrders.length / rowsPerPage);
 
   if (isLoading) return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex justify-center items-center h-50 mt-50">
       <img src={buffer} alt="Loading..." className="w-50 h-50" />
     </div>
   );

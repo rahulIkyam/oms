@@ -13,7 +13,7 @@ function CreateUser() {
     const navigate = useNavigate();
     const axiosAuth = authInstance(auth, logout, navigate);
 
-    const [selectedRole, setSelectedRole] = useState();
+    const [selectedRole, setSelectedRole] = useState("Admin");
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [userCompany, setUserCompany] = useState(auth.company || '');
@@ -32,6 +32,17 @@ function CreateUser() {
     };
 
     const handleSubmit = async () => {
+           const requestData2 = {
+            active: true,
+            companyName: userCompany,
+            email: userEmail,
+            location: userLocation,
+            mobileNumber: userMobile,
+            role: selectedRole,
+            userName: userName,
+            returnCredit: 0.0,
+        };
+        console.log(requestData2);
         if (!selectedRole || !userName.trim() || !userEmail.trim() || !userMobile.trim() || !userLocation.trim()) {
             Swal.fire({
                 icon: 'warning',

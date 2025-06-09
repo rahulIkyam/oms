@@ -20,7 +20,7 @@ import CustomerOrderCreation from './pages/Customer/CustomerOrderCreation'
 import CustomerViewOrder from './pages/Customer/CustomerViewOrder'
 import EmployeeOrderView from './pages/Employee/EmployeeOrderView'
 import EmployeeCustomerView from './pages/Employee/EmployeeCustomerView'
-
+import OTPForm from './pages/user-management/OtpForm'
 
 // Protect route based on token
 const PrivateRoute = ({ children }) => {
@@ -67,42 +67,19 @@ function App() {
   const [isDrawerHidden, setDrawerHidden] = useState(window.innerWidth <= 500);
   const isDarkMode = false;
 
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setDrawerOpen(window.innerWidth >= 768);
-  //     setSmallDrawer(window.innerWidth < 768 && window.innerWidth > 500);
-  //     setDrawerHidden(window.innerWidth <= 500);
-  //   };
-
-  //   const handleStorageChange = () => {
-  //     setToken(localStorage.getItem("token"));
-  //   };
-
-  //   window.addEventListener("resize", handleResize);
-  //   window.addEventListener("storage", handleStorageChange);
-
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //     window.removeEventListener("storage", handleStorageChange);
-  //   };
-  // }, []);
-
+  const AdminRoute = ({ children }) => {
+    const role = localStorage.getItem("role");
+    return role === "Admin" ? children : <Navigate to="/" replace />;
+  };
   return (
-    // <>
-    //   <BrowserRouter>
-    //     <Routes>
-    //       <Route path='/login' element={<Login />} />
-    //       <Route path='/customer-dashboard' element={<CustomerDashboard />} />
-    //       <Route path='/employee-dashboard' element={<EmployeeDashboard />} />
-    //       <Route path='/user-list' element={<UserList />} />
-    //     </Routes>
-    //   </BrowserRouter>
-    // </>
+
 
 
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={auth.token ? <Navigate to="/" replace /> : <Login />} />
+        <Route path="/setPassword" element={<OTPForm />} />
+
 
         <Route path="/*" element={
           <PrivateRoute>
@@ -123,7 +100,12 @@ function App() {
                 <Route path="/employee-customerView" element={<EmployeeCustomerView />} />
                 <Route path="/employee-orderList" element={<EmployeeOrderList />} />
                 <Route path="/employee-orderView" element={<EmployeeOrderView />} />
-                <Route path="/user-list" element={<UserList />} />
+                <Route path="/user-list" element={
+                  <AdminRoute>
+                    <UserList />
+                  </AdminRoute>
+                } />
+
                 <Route path="/create-user" element={<CreateUser />} />
                 <Route path="/edit-user" element={<EditUser />} />
               </Routes>

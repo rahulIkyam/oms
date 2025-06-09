@@ -6,6 +6,7 @@ import { FaEdit, FaSearch, FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import authInstance from '../../config/authInstance';
+import { ChevronDown } from 'lucide-react';
 
 function UserList() {
   const { auth, logout } = useAuth();
@@ -156,18 +157,9 @@ function UserList() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">User Management</h1>
 
-        <div className="w-full md:w-auto">
-          <button
-            className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
-            onClick={() => navigate('/create-user')}
-          >
-            + New User
-          </button>
-        </div>
-      </div>
 
-      {/* Table and Search */}
-      <div className="bg-white p-6 mt-10 rounded-lg shadow-md">
+      </div>
+      <div className='flex'>
         <div className='flex flex-col md:flex-row gap-4 flex-grow mb-6'>
           <div className='relative w-full md:w-72'>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -185,10 +177,9 @@ function UserList() {
               }}
             />
           </div>
-
-          <div className='relative w-full md:w-72'>
+          <div className="relative w-full md:w-72">
             <select
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="appearance-none w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={role}
               onChange={(e) => {
                 setRole(e.target.value);
@@ -202,8 +193,27 @@ function UserList() {
                 </option>
               ))}
             </select>
+
+            {/* Icon on the right side */}
+            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
+              <ChevronDown className="w-4 h-4" />
+            </div>
           </div>
+
+
         </div>
+        <div className="w-full md:w-auto">
+          <button
+            className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
+            onClick={() => navigate('/create-user')}
+          >
+            + New User
+          </button>
+        </div>
+      </div>
+      {/* Table and Search */}
+      <div className="bg-white p-  rounded-lg shadow-md">
+
 
         {/* Responsive Table */}
         <div className="rounded-xl overflow-hidden border border-gray-300">
@@ -230,16 +240,18 @@ function UserList() {
                     <td className="py-3 px-4">{user.role}</td>
                     <td className="py-3 px-4">{user.mobileNumber}</td>
                     <td className="py-3 px-4">
-                      <select
-                        value={user.active ? 'Active' : 'Inactive'}
-                        onChange={(e) => updateUserStatus(user.userId, e.target.value)}
-                        className={`px-3 py-1  text-sm font-medium 
+                      <div className={` text-sm font-medium min-w-23 w-23 
     ${user.active ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'}
-    focus:outline-none focus:ring-2 focus:ring-blue-400 transition`}
-                      >
-                        <option value="Active">Active</option>
-                        <option value="Inactive">Inactive</option>
-                      </select>
+    focus:outline-none focus:ring-2 focus:ring-blue-400 transition`}>
+                        <select
+                          value={user.active ? 'Active' : 'Inactive'}
+                          onChange={(e) => updateUserStatus(user.userId, e.target.value)}
+                          className='px-3 py-1 pr-1 focus:outline-none'
+                        >
+                          <option value="Active">Active</option>
+                          <option value="Inactive">Inactive</option>
+                        </select>
+                      </div>
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex space-x-2">

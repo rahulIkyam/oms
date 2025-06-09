@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import buffer from '../../../public/assets/buffer.gif';
+import buffer from '../../assets/buffer.gif';
+
 import { FaArrowLeft } from 'react-icons/fa';
 
 function EmployeeOrderView() {

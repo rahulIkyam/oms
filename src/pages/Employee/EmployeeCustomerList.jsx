@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../config/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
-import noData from '../../../public/assets/nodata.png'
+
 import authInstance from '../../config/authInstance';
-import buffer from '../../../public/assets/buffer.gif';
+import buffer from '../../assets/buffer.gif';
+import noData from '../../assets/noData.png'
 import { ArrowRightCircle } from 'lucide-react';
 
 function EmployeeCustomerList() {

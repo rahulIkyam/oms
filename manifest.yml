@@ -1,0 +1,5 @@
+ applications:
+   - name: omswebapp
+     buildpack: https://github.com/SathyaPrakashIkyam/staticfile-buildpack
+
+    #  cf push omswebapp -b staticfile_buildpack

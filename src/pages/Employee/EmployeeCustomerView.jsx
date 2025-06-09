@@ -3,8 +3,8 @@ import { FaArrowLeft, FaSearch } from 'react-icons/fa'
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../config/AuthContext';
 import authInstance from '../../config/authInstance';
-import buffer from '../../../public/assets/buffer.gif';
-import noData from '../../../public/assets/nodata.png';
+import buffer from '../../assets/buffer.gif';
+import noData from '../../assets/noData.png'
 
 function EmployeeCustomerView() {
 

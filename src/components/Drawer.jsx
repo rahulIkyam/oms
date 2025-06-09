@@ -143,7 +143,8 @@ useEffect(() => {
 const NavItem = ({ to, icon: Icon, label, active, isOpen, onClickSide, setExpandedItem }) => {
     const navigate = useNavigate();
     const handleClick = () => {
-        if (onClickSide) onClickSide();
+
+        // if (onClickSide) onClickSide();
         if (setExpandedItem) setExpandedItem(null);
         navigate(to, { replace: true });  //replaces the current history entry
     };
