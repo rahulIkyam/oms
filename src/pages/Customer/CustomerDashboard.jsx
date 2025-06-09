@@ -31,7 +31,6 @@ function CustomerDashboard() {
     const fetchOrderList = async (page, limit) => {
         try {
             setIsLoading(true);
-            const url = "https://ordermanagement-empathic-mandrill-be.cfapps.us10-001.hana.ondemand.com/api/GSUS/order_master/get_all_ordermaster_by_customer/{customerId}"
             const response = await axiosauth.get(`${auth.company}/order_master/get_all_ordermaster_by_customer/${localStorage.getItem('userId')}`);
 
             if (response.status === 200) {

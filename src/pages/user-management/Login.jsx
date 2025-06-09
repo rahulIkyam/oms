@@ -1,10 +1,10 @@
 import axios from 'axios';
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../config/AuthContext';
 import { base_url } from '../../config/api';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-
+import { FaSpinner } from 'react-icons/fa'; 
 
 const images = {
   loginImg: '/assets/login.png',
@@ -18,7 +18,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
-
+  const [loading, setLoading] = useState(false);
 
   // without Context
   // const checkLogin = async () => {
@@ -66,12 +66,14 @@ function Login() {
   // };
 
   const checkLogin = async () => {
+    setLoading(true);
     const tempJson = { userName: username, password: password };
 
     try {
       const res = await axios.post(`${base_url}/public/user_master/login-authenticate`, tempJson);
 
       if (res.status === 200) {
+          setLoading(false);
         const data = res.data;
 
         if (data.error) {
@@ -87,77 +89,107 @@ function Login() {
           // else alert('Unknown Role');
         }
       } else {
+        setLoading(false);
         alert('server error');
       }
     } catch (error) {
+      setLoading(false);
       alert('Login failerd: ' + error.message);
     }
+    setLoading(false);
   }
 
   return (
     <div className='login-container flex flex-col md:flex-row h-screen'>
       {/* left side */}
-      <div className="login-image relative w-full md:w-1/2 h-auto md:h-full mt-6 md:mt-0 md:m-10">
-        <img
-          src={images.logo}
-          alt="login logo"
-          className='absolute top-4 left-4 w-24 md:w-40'
-        />
+      <div className=" flex flex-col items-center justify-center  md:h-full mt-6 md:mt-0 md:m-10">
+          <h2 className="text-4xl  font-bold text-blue-600 pb-10 ">
+            Welcome Back
+          </h2>
+          <p className=" hidden md:block text-gray-600 pb-2 pl-30">
+            Log in to get started and experience effortless control over your entire order process.
+          </p>
         <img
           src={images.loginImg}
           alt="login image"
-          className='w-full h-full object-cover'
+          className='hidden md:block w-full h-150 ml-40 object-fill  bg-gray-200'
+
         />
       </div>
       {/* Right Side */}
-      <div className="login-form w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-8">
-        <div className="w-full max-w-md">
-          <h4 className='text-xl md:text-2xl font-bold text-blue-600 mb-2'>Login to your account</h4>
-          <p className='mb-6 text-gray-600 text-sm md:text-base'>Simplify your order management and gain complete control</p>
-
-          <label className="block mb-1 font-medium">Username</label>
-          <input
-            type="text"
-            placeholder='Enter Username'
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full md:w-1/2 p-2 border border-gray-300 rounded mb-4"
-            required
-          />
-
-          <label className="block mb-1 font-medium">Password</label>
-          <div className="relative w-full md:w-1/2 mb-4">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              placeholder='Enter Password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded pr-16"
-              required
-            />
+      <div className="login-form w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-8 ">
+        <img
+          src={images.logo}
+          alt="login logo"
+          className=' top-4 left-4 w-24 md:w-40'
+        />
+         <form className="space-y-5" onSubmit={(e) =>{
+               e.preventDefault();
+                checkLogin();
+            }}>
+          <div className="w-full max-w-md bg-white shadow-xl rounded-lg p-6 md:p-8">
+            <h4 className="text-2xl font-bold text-blue-600 mb-2">Login to your account</h4>
+            <p className="mb-6 text-gray-600 text-sm md:text-base">
+              Simplify your order management and gain complete control
+            </p>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Username</label>
+              <input
+                type="text"
+                placeholder="Enter Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded pr-10 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+            <div className="flex justify-end mb-6">
+              <div className='text-sm text-blue-500 hover:underline cursor-pointer' onClick={()=>{
+                 navigate('/setPassword');
+              }}>
+                Forgot Password ?
+              </div>
+             
+            </div>
             <button
-            type='button'
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600"
+              type="submit"
+              onClick={checkLogin}
+              disabled={loading}
+              className={`w-full flex justify-center items-center gap-2 bg-blue-600 text-white py-2 rounded transition-colors duration-200 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-blue-700 cursor-pointer'
+                }`}
             >
-              {showPassword ? <FaEyeSlash/> : <FaEye/>}
+              {loading ? (
+                <>
+                  <FaSpinner className="animate-spin" />
+                  Logging in...
+                </>
+              ) : (
+                'Login'
+              )}
             </button>
           </div>
+        </form>
 
-
-          <div className="flex justify-end w-full md:w-1/2 mb-6">
-            <Link className="text-sm text-blue-500 hover:underline">Forgot Password?</Link>
-          </div>
-
-
-          <button
-            type='submit'
-            onClick={checkLogin}
-            className="w-full md:w-1/2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition cursor-pointer"
-          >
-            Login
-          </button>
-        </div>
       </div>
     </div>
   )
