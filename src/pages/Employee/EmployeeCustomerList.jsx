@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../config/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useLoaderData, useLocation, useNavigate } from 'react-router-dom';
 import { FaSearch } from 'react-icons/fa';
 
 import authInstance from '../../config/authInstance';
@@ -12,6 +12,7 @@ function EmployeeCustomerList() {
 
     const { auth, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const axiosAuth = authInstance(auth, logout, navigate);
 
     const [customerList, setCustomerList] = useState([]);
@@ -19,7 +20,7 @@ function EmployeeCustomerList() {
     const [isLoading, setIsLoading] = useState(false);
     const [searchCustomerName, setSearchCustomerName] = useState("");
     const [filteredCustomers, setFilteredCustomers] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(location.state?.currentPage || 1);
     const [itemsPerPage] = useState(10);
     const rowsPerPage = 10;
 
@@ -27,7 +28,7 @@ function EmployeeCustomerList() {
     const fetchCustomerList = async (page, limit) => {
         try {
             setIsLoading(true);
-            const response = await axiosAuth.get(`public/customer_master/get_all_s4hana_customermaster?page=${page}&limit=${limit}`)
+            const response = await axiosAuth.get(`public/customer_master/get_all_s4hana_customermaster`)
 
             if (response.status === 200) {
                 const data = response.data;
@@ -75,7 +76,8 @@ function EmployeeCustomerList() {
                 <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Data</h3>
                 <p className="text-red-600">{error}</p>
                 <button
-                    onClick={() => window.location.reload()}
+                    // onClick={() => window.location.reload()}
+                    onClick={() => navigate('/login')}
                     className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
                 >
                     Try Again
@@ -146,7 +148,7 @@ function EmployeeCustomerList() {
                                         <td className="px-4 py-3">
                                             <button
                                                 onClick={() => {
-                                                    navigate('/employee-customerView', { state: { customer } })
+                                                    navigate('/employee-customerView', { state: { customer, currentPage } })
                                                 }}
                                                 className="text-blue-600 hover:text-blue-800 text-sm cursor-pointer"
                                             >

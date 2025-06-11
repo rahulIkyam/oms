@@ -26,7 +26,7 @@ function EmployeeProductList() {
     const getchProductsList = async (page, limit) => {
         try {
             setIsLoading(true);
-            const response = await axiosAuth.get(`/public/productmaster/get_all_s4hana_productmaster?page=${page}&limit=${limit}`);
+            const response = await axiosAuth.get(`/public/productmaster/get_all_s4hana_productmaster`);
 
             if (response.status === 200) {
                 const data = response.data;
@@ -43,7 +43,7 @@ function EmployeeProductList() {
     }
     useEffect(() => {
         getchProductsList(currentPage, itemsPerPage);
-    }, [currentPage]);
+    }, []);
 
     useEffect(() => {
         let results = productsList;
@@ -75,7 +75,8 @@ function EmployeeProductList() {
                 <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Data</h3>
                 <p className="text-red-600">{error}</p>
                 <button
-                    onClick={() => window.location.reload()}
+                    // onClick={() => window.location.reload()}
+                    onClick={() => navigate('/login')}
                     className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
                 >
                     Try Again

@@ -8,6 +8,7 @@ function EmployeeOrderView() {
     const { state } = useLocation();
     const order = state?.order;
     const items = order?.items || [];
+    const currentPage = state?.currentPage || 1;
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
 
@@ -33,7 +34,7 @@ function EmployeeOrderView() {
             <div className="flex flex-col md:flex-row gap-4 flex-grow mb-6 justify-between">
                 <div className="flex items-center gap-3 mb-6">
                     <button
-                        onClick={() => navigate('/employee-orderList')}
+                        onClick={() => navigate('/employee-orderList', {state: {currentPage}})}
                         className="text-gray-600 hover:text-blue-600 cursor-pointer"
                     >
                         <FaArrowLeft size={20} />

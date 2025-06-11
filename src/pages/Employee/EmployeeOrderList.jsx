@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../config/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import buffer from '../../assets/buffer.gif';
 import noData from '../../assets/noData.png'
 import { FaSearch } from 'react-icons/fa';
@@ -11,6 +11,7 @@ function EmployeeOrderList() {
 
     const { auth, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const axiosAuth = authInstance(auth, logout, navigate);
 
     const [error, setError] = useState(null);
@@ -19,7 +20,7 @@ function EmployeeOrderList() {
     const [searchOrderName, setSearchOrderName] = useState("");
     const [searchStatus, setSearchStatus] = useState("All");
     const [filteredOrders, setFilteredOrders] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(location.state?.currentPage || 1);
     const [itemsPerPage] = useState(10);
     const rowsPerPage = 10;
 
@@ -27,7 +28,7 @@ function EmployeeOrderList() {
     const fetchOrderList = async () => {
         try {
             setIsLoading(true);
-            const response = await axiosAuth.get(`/${auth.company}/order_master/get_all_ordermaster?page=${currentPage}&limit=${itemsPerPage}`);
+            const response = await axiosAuth.get(`/${auth.company}/order_master/get_all_ordermaster`);
             if (response.status === 200) {
                 const data = response.data;
                 setOrderList(data);
@@ -44,7 +45,7 @@ function EmployeeOrderList() {
 
     useEffect(() => {
         fetchOrderList(currentPage, itemsPerPage);
-    }, [currentPage]);
+    }, []);
 
     useEffect(() => {
         let results = orderList;
@@ -88,7 +89,8 @@ function EmployeeOrderList() {
                 <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Data</h3>
                 <p className="text-red-600">{error}</p>
                 <button
-                    onClick={() => window.location.reload()}
+                    // onClick={() => window.location.reload()}
+                    onClick={() => navigate('/login')}
                     className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
                 >
                     Try Again
@@ -153,7 +155,7 @@ function EmployeeOrderList() {
                                 <th className="py-3 px-4 text-left">Customer Name</th>
                                 <th className="py-3 px-4 text-left">Order Date</th>
                                 <th className="py-3 px-4 text-left">Total</th>
-                                <th className="py-3 px-4 text-left">Status</th>
+                                <th className="py-3 px-4 text-left">Sync Status</th>
                                 <th className="py-3 px-4 text-left">SAP Order ID</th>
                                 <th className="py-3 px-4 text-left">Remarks</th>
                                 <th className="py-3 px-4 text-left"></th>
@@ -179,14 +181,25 @@ function EmployeeOrderList() {
                                         <td className="px-4 py-3">{order.total}</td>
 
                                         <td className="px-4 py-3">
-                                            {order.salesOrderId !== null ? "Synced" : "Not Synced"}
+                                            <span
+                                                className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${order.salesOrderId !== null
+                                                    ? 'bg-green-200 text-green-900'
+                                                    : 'bg-red-200 text-red-900'
+                                                    }`}
+                                            >
+                                                {order.salesOrderId !== null ? 'Success' : 'Failed'}
+                                            </span>
                                         </td>
-                                        <td className="px-4 py-3">{order.salesOrderId}</td>
+                                        <td className="px-4 py-3">{order.salesOrderId !== null ? (
+                                            <span className="text-sm font-bold text-gray-700">{order.salesOrderId}</span>
+                                        ) : (
+                                            <span className="text-sm font-bold text-gray-700">-</span>
+                                        )}</td>
                                         <td className="px-4 py-3">{order.status}</td>
                                         <td className="px-4 py-3">
                                             <button
                                                 onClick={() => {
-                                                    navigate('/employee-orderView', { state: { order } })
+                                                    navigate('/employee-orderView', { state: { order, currentPage } })
                                                 }}
                                                 className="text-blue-600 hover:text-blue-800 text-sm cursor-pointer"
                                             >
@@ -217,7 +230,7 @@ function EmployeeOrderList() {
                                     <div className="mt-4 text-right">
                                         <button
                                             onClick={() => {
-                                                navigate('/employee-orderView', { state: { order } })
+                                                navigate('/employee-orderView', { state: { order, currentPage } })
                                             }}
                                             className="text-blue-600 hover:text-blue-800 text-sm cursor-pointer"
                                         >

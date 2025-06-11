@@ -71,6 +71,17 @@ function App() {
     const role = localStorage.getItem("role");
     return role === "Admin" ? children : <Navigate to="/" replace />;
   };
+
+  const EmployeeRoute = ({ children }) => {
+    const role = localStorage.getItem("role");
+    return role === "Employee" ? children : <Navigate to="/" replace />
+  }
+
+  const CustomerRoute = ({ children }) => {
+    const role = localStorage.getItem("role");
+    return role === "Customer" ? children : <Navigate to="/" replace />
+  }
+
   return (
 
 
@@ -90,24 +101,72 @@ function App() {
                     auth.role === 'Employee' ? <Navigate to="/employee-dashboard" replace /> :
                       <Navigate to="/customer-dashboard" replace />
                 } />
-                <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-                <Route path="/customer-orderList" element={<CustomerOrderList />} />
-                <Route path="/customer-create-order" element={<CustomerOrderCreation />} />
-                <Route path="/customer-view-order" element={<CustomerViewOrder />} />
-                <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
-                <Route path="/employee-productList" element={<EmployeeProductList />} />
-                <Route path="/employee-customerList" element={<EmployeeCustomerList />} />
-                <Route path="/employee-customerView" element={<EmployeeCustomerView />} />
-                <Route path="/employee-orderList" element={<EmployeeOrderList />} />
-                <Route path="/employee-orderView" element={<EmployeeOrderView />} />
+                <Route path="/customer-dashboard" element={
+                  <CustomerRoute>
+                    <CustomerDashboard />
+                  </CustomerRoute>
+                } />
+                <Route path="/customer-orderList" element={
+                  <CustomerRoute>
+                    <CustomerOrderList />
+                  </CustomerRoute>
+                } />
+                <Route path="/customer-create-order" element={
+                  <CustomerRoute>
+                    <CustomerOrderCreation />
+                  </CustomerRoute>
+                } />
+                <Route path="/customer-view-order" element={
+                  <CustomerRoute>
+                    <CustomerViewOrder />
+                  </CustomerRoute>
+                } />
+                <Route path="/employee-dashboard" element={
+                  <EmployeeRoute>
+                    <EmployeeDashboard />
+                  </EmployeeRoute>
+                } />
+                <Route path="/employee-productList" element={
+                  <EmployeeRoute>
+                    <EmployeeProductList />
+                  </EmployeeRoute>
+                } />
+                <Route path="/employee-customerList" element={
+                  <EmployeeRoute>
+                    <EmployeeCustomerList />
+                  </EmployeeRoute>
+                } />
+                <Route path="/employee-customerView" element={
+                  <EmployeeRoute>
+                    <EmployeeCustomerView />
+                  </EmployeeRoute>
+                } />
+                <Route path="/employee-orderList" element={
+                  <EmployeeRoute>
+                    <EmployeeOrderList />
+                  </EmployeeRoute>
+                } />
+                <Route path="/employee-orderView" element={
+                  <EmployeeRoute>
+                    <EmployeeOrderView />
+                  </EmployeeRoute>
+                } />
                 <Route path="/user-list" element={
                   <AdminRoute>
                     <UserList />
                   </AdminRoute>
                 } />
 
-                <Route path="/create-user" element={<CreateUser />} />
-                <Route path="/edit-user" element={<EditUser />} />
+                <Route path="/create-user" element={
+                  <AdminRoute>
+                    <CreateUser />
+                  </AdminRoute>
+                } />
+                <Route path="/edit-user" element={
+                  <AdminRoute>
+                    <EditUser />
+                  </AdminRoute>
+                } />
               </Routes>
             </MainLayout>
           </PrivateRoute>

@@ -4,8 +4,10 @@ import Swal from 'sweetalert2';
 import { base_url } from "../../config/api";
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
+import { useNavigate } from "react-router-dom";
 
 const OTPForm = () => {
+    const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [otpRequested, setOtpRequested] = useState(false);
     const [otp, setOtp] = useState("");
@@ -13,6 +15,7 @@ const OTPForm = () => {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [resendCooldown, setResendCooldown] = useState(0);
     const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [otpLoading, setOtpLoading] = useState(false);
 
     // Countdown timer
@@ -143,26 +146,26 @@ const OTPForm = () => {
             setOtpLoading(false);
             if (data) {
                 console.log(data);
-                if(data ==="Password changed successfully"){
-                     Swal.fire({
-                            icon: "success",
-                            title: "",
-                            text: `Password set successfully`,
-                        }).then(()=>{
-                             window.location.reload();
-                        });
-                  
-                        
-                }
-                else{
-                     
+                if (data === "Password changed successfully") {
                     Swal.fire({
-                            icon: "warning",
-                            title: "",
-                            text: `${data}`,
-                        }).then(()=>{
-                            //    window.location.reload();
-                        });
+                        icon: "success",
+                        title: "",
+                        text: `Password set successfully`,
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                    navigate("/login");
+
+                }
+                else {
+
+                    Swal.fire({
+                        icon: "warning",
+                        title: "",
+                        text: `${data}`,
+                    }).then(() => {
+                        //    window.location.reload();
+                    });
                 }
             }
 
@@ -171,7 +174,7 @@ const OTPForm = () => {
             setOtpLoading(false);
         }
         setOtpLoading(false);
-        
+
     };
 
 
@@ -201,7 +204,7 @@ const OTPForm = () => {
                         {otpLoading ? (
                             <>
                                 <FaSpinner className="animate-spin" />
-                                Logging in...
+                                Requesting...
                             </>
                         ) : (
                             'Request OTP'
@@ -262,13 +265,22 @@ const OTPForm = () => {
                         {/* Confirm Password */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                            <input
-                                type="password"
-                                className="w-full border border-gray-300 rounded-md px-3 py-2"
-                                placeholder="Confirm password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    className="w-full border border-gray-300 rounded-md px-3 py-2"
+                                    placeholder="Confirm password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600"
+                                >
+                                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
+                            </div>
                         </div>
 
                         <button
@@ -277,7 +289,14 @@ const OTPForm = () => {
 
                             className={`w-full flex justify-center items-center gap-2 bg-green-600 text-white py-2 rounded transition-colors duration-200 ${otpLoading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-green-700 cursor-pointer'}`}
                         >
-                            Submit
+                            {otpLoading ? (
+                                <>
+                                <FaSpinner className="animate-spin"/>
+                                Submiting...
+                                </>
+                            ) : (
+                                "Submit"
+                            )}
                         </button>
                     </>
                 )}

@@ -23,8 +23,10 @@ function UserList() {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchUserList();
-  }, [auth.company, currentPage]); // Add dependencies here
+    if (auth?.company) {
+      fetchUserList();
+    }
+  }, [auth.company]); // Add dependencies here
 
   const fetchUserList = async () => {
     try {
@@ -34,6 +36,11 @@ function UserList() {
       setFilteredUsers(response.data);
     } catch (error) {
       console.error('Error in getting User List:', error);
+      if (error.response && error.response.status === 401) {
+        logout();
+        navigate('/login');
+        return;
+      }
       setError('Failed to fetch users');
     } finally {
       setLoading(false);
@@ -143,8 +150,9 @@ function UserList() {
         <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Data</h3>
         <p className="text-red-600">{error}</p>
         <button
-          onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
+          // onClick={() => window.location.reload()}
+          onClick={() => navigate('/login')}
+          className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors cursor-pointer"
         >
           Try Again
         </button>
@@ -204,7 +212,7 @@ function UserList() {
         </div>
         <div className="w-full md:w-auto">
           <button
-            className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
+            className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 cursor-pointer"
             onClick={() => navigate('/create-user')}
           >
             + New User

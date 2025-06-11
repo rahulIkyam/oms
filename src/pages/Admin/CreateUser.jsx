@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useAuth } from '../../config/AuthContext';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import { FaArrowLeft } from 'react-icons/fa';
+import { FaArrowLeft, FaSave, FaSpinner } from 'react-icons/fa';
 import axios from 'axios';
 import { base_url } from '../../config/api';
 import authInstance from '../../config/authInstance';
@@ -19,6 +19,7 @@ function CreateUser() {
     const [userCompany, setUserCompany] = useState(auth.company || '');
     const [userMobile, setUserMobile] = useState('');
     const [userLocation, setUserLocation] = useState('');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         setUserCompany(auth.company || '');
@@ -32,7 +33,7 @@ function CreateUser() {
     };
 
     const handleSubmit = async () => {
-           const requestData2 = {
+        const requestData2 = {
             active: true,
             companyName: userCompany,
             email: userEmail,
@@ -71,8 +72,7 @@ function CreateUser() {
             userName: userName,
             returnCredit: 0.0,
         };
-        const token = auth.token;
-
+        setLoading(true);
         try {
             const response = await axiosAuth.post(
                 `/public/user_master/add-usermaster`,
@@ -82,6 +82,7 @@ function CreateUser() {
             const data = response.data;
 
             if (data.status === 'success') {
+                setLoading(false);
                 Swal.fire({
                     icon: "success",
                     title: "Account Created",
@@ -90,12 +91,14 @@ function CreateUser() {
                     navigate('/user-list');
                 });
             } else if (data.status === "failed" && data.error === "email already exists") {
+                setLoading(false);
                 Swal.fire({
                     icon: "error",
                     title: "Duplicate Email",
                     text: "This email already exists.",
                 });
             } else if (data.status === "failed" && data.error === "mobile number already exists") {
+                setLoading(false);
                 Swal.fire({
                     icon: "error",
                     title: "Duplicate Mobile Number",
@@ -103,6 +106,7 @@ function CreateUser() {
                 });
             } else {
                 console.error("Unexpected response:", data);
+                setLoading(false);
                 Swal.fire({
                     icon: "error",
                     title: "Unexpected Error",
@@ -111,6 +115,7 @@ function CreateUser() {
             }
         } catch (error) {
             console.error("Error:", error);
+            setLoading(false);
             Swal.fire({
                 icon: "error",
                 title: "Network Error",
@@ -135,20 +140,34 @@ function CreateUser() {
 
             {/* Form Wrapper */}
             <div className="w-full flex justify-center">
-                <div className="w-full max-w-3xl bg-teal-50 p-6 rounded-xl shadow-md">
+                <div className="w-full max-w-3xl bg-gradient-to-br from-blue-50 via-white to-blue-100 p-8 rounded-2xl shadow-lg border border-blue-200">
+                    <h2 className="text-xl font-semibold text-gray-700 mb-4 text-center">Fill in User Details</h2>
                     {/* Form Fields */}
-                    <div className="grid grid-cols-1 gap-y-6 mb-6 items-center justify-center">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         {/* Row 1 */}
-                        <select
-                            value={selectedRole}
-                            onChange={(e) => setSelectedRole(e.target.value)}
-                            className="bg-white border border-gray-300 rounded-lg px-4 py-2 h-12 w-full"
-                        >
-                            <option value="" disabled>Select Role</option>
-                            <option value="Admin">Admin</option>
-                            <option value="Customer">Customer</option>
-                            <option value="Employee">Employee</option>
-                        </select>
+                        <div className="relative w-full">
+                            <select
+                                value={selectedRole}
+                                onChange={(e) => setSelectedRole(e.target.value)}
+                                className="bg-white border border-gray-300 rounded-lg px-4 pr-5 py-2 h-12 w-full appearance-none"
+                            >
+                                <option value="" disabled>Select Role</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Customer">Customer</option>
+                                <option value="Employee">Employee</option>
+                            </select>
+                            <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-500">
+                                <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
 
                         <input
                             type="text"
@@ -194,10 +213,24 @@ function CreateUser() {
                     {/* Save Button */}
                     <div className="flex justify-end">
                         <button
+                            type='submit'
+                            disabled={loading}
                             onClick={handleSubmit}
-                            className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 cursor-pointer"
+                            className={` flex justify-center items-center gap-2 bg-blue-600 text-white py-2 px-6 rounded-md transition-colors duration-200 ${loading ? 'opacity-60 cursor-not-allowed' : 'hover:bg-blue-700 cursor-pointer'
+                                }`}
                         >
-                            Save
+                            {loading ? (
+                                <>
+                                    <FaSpinner className="animate-spin" />
+                                    Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <FaSave />
+                                    Save
+                                </>
+                            )}
+
                         </button>
                     </div>
                 </div>

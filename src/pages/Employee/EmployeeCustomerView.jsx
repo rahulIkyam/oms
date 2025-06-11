@@ -10,6 +10,7 @@ function EmployeeCustomerView() {
 
     const { state } = useLocation();
     const customer = state.customer;
+    
 
     const navigate = useNavigate();
     const { auth, logout } = useAuth();
@@ -20,7 +21,7 @@ function EmployeeCustomerView() {
     const [isLoading, setIsLoading] = useState(false);
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [searchCustomerName, setSearchCustomerName] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(state?.currentPage || 1);
     const [itemsPerPage] = useState(10);
     const rowsPerPage = 10;
 
@@ -79,7 +80,8 @@ function EmployeeCustomerView() {
                 <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Data</h3>
                 <p className="text-red-600">{error}</p>
                 <button
-                    onClick={() => window.location.reload()}
+                    // onClick={() => window.location.reload()}
+                    onClick={() => navigate('/login')}
                     className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
                 >
                     Try Again
@@ -94,7 +96,7 @@ function EmployeeCustomerView() {
             <div className="flex flex-col md:flex-row gap-4 flex-grow mb-6 justify-between">
                 <div className="flex items-center gap-3 mb-6">
                     <button
-                        onClick={() => navigate('/employee-customerList')}
+                        onClick={() => navigate('/employee-customerList', {state: {currentPage}})}
                         className="text-gray-600 hover:text-blue-600 cursor-pointer"
                     >
                         <FaArrowLeft size={20} />

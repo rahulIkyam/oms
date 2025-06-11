@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../config/AuthContext';
 import { FaSearch } from 'react-icons/fa';
 import buffer from '../../assets/buffer.gif';
@@ -10,6 +10,7 @@ import { ArrowRightCircle, RotateCcw } from 'lucide-react';
 function CustomerOrderList() {
     const { auth, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const axiosauth = authInstance(auth, logout, navigate);
 
     const [error, setError] = useState(null);
@@ -17,11 +18,11 @@ function CustomerOrderList() {
     const [orderList, setOrderList] = useState([]);
     const [searchOrderName, setSearchOrderName] = useState("");
     const [filteredOrders, setFilteredOrders] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [currentPage, setCurrentPage] = useState(location.state?.currentPage || 1);
     const [itemsPerPage] = useState(10);
     const rowsPerPage = 10;
 
-    const fetchOrderList = async (page, limit) => {
+    const fetchOrderList = async () => {
         try {
             setIsLoading(true);
             const response = await axiosauth.get(`${auth.company}/order_master/get_all_ordermaster_by_customer/${localStorage.getItem('userId')}`);
@@ -52,14 +53,20 @@ function CustomerOrderList() {
             }
         } catch (error) {
             console.error("Error fetching Orders:", error);
-            setError("Something went wrong while fetching orders.");
+
+            if(error.response && error.response.data && error.response.data.error) {
+                setError(error.response.data.error);
+            } else {
+                setError("Something went wrong while fetching orders.");
+            }
+            
             setIsLoading(false);
         } finally {
             setIsLoading(false);
         }
     }
     useEffect(() => {
-        fetchOrderList(currentPage, itemsPerPage);
+        fetchOrderList();
     }, []);
 
     useEffect(() => {
@@ -94,7 +101,8 @@ function CustomerOrderList() {
                 <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Data</h3>
                 <p className="text-red-600">{error}</p>
                 <button
-                    onClick={() => window.location.reload()}
+                    // onClick={() => window.location.reload()}
+                    onClick={() => navigate('/login')}
                     className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition-colors"
                 >
                     Try Again
@@ -216,7 +224,7 @@ function CustomerOrderList() {
                                         <td className="px-4 py-3">
                                             <button
                                                 onClick={() => {
-                                                    navigate('/customer-view-order', { state: { order } })
+                                                    navigate('/customer-view-order', { state: { order, currentPage } })
                                                 }}
                                                 className="text-blue-600 hover:text-blue-800 text-sm cursor-pointer"
                                             >
@@ -247,7 +255,7 @@ function CustomerOrderList() {
                                     <div className="mt-4 text-right">
                                         <button
                                             onClick={() => {
-                                                navigate('/customer-view-order', { state: { order } })
+                                                navigate('/customer-view-order', { state: { order, currentPage } })
                                             }}
                                             className="text-blue-600 hover:text-blue-800 text-sm cursor-pointer"
                                         >
