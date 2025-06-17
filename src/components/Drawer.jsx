@@ -14,16 +14,14 @@ function Drawer({ isOpen, onToggle }) {
         onToggle(!isOpen);
     };
 
-useEffect(() => {
-  const handleResize = () => {
-    setIsHidden(window.innerWidth < 500);
-  };
-  window.addEventListener("resize", handleResize);
-  handleResize(); // set initial state
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
-
-
+    useEffect(() => {
+        const handleResize = () => {
+            setIsHidden(window.innerWidth < 500);
+        };
+        window.addEventListener("resize", handleResize);
+        handleResize(); // set initial state
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     return (
         <>
@@ -34,19 +32,19 @@ useEffect(() => {
                 ></div>
             )}
             <div
-                className={`fixed top-0 left-0 h-screen bg-gradient-to-t from-white to-white 
-                    text-blue-900 shadow-xl flex flex-col z-50 transition-transform duration-500 
+                className={`fixed top-0 left-0 h-screen bg-gradient-to-t from-blue-900 to-blue-900 
+                    text-white shadow-xl flex flex-col z-50 transition-transform duration-500 
                     ${isHidden ? (isOpen ? "translate-x-0" : "-translate-x-full") : "w-20"
                     } ${isOpen ? "w-64" : "w-20"} ${isHidden ? "absolute" : "fixed"}`}
             >
                 {/* logo */}
                 <div className="p-4 flex items-center justify-between border-b border-blue-200">
                     <div className="flex items-center space-x-3">
-                        <div className="bg-indigo-600 p-1 rounded-lg">
-                            <span className="text-white">⚡</span>
+                        <div className="bg-white p-1 rounded-lg">
+                            <span className="text-blue-900">⚡</span>
                         </div>
                         {isOpen && (
-                            <span className="text-xl font-bold text-blue-900 whitespace-nowrap">
+                            <span className="text-xl font-bold text-white whitespace-nowrap">
                                 My App
                             </span>
                         )}
@@ -119,22 +117,6 @@ useEffect(() => {
                         </>
                     )}
                 </nav>
-
-                {/* Footer */}
-                {/* <div className="p-4 text-sm text-gray-400 border-t border-gray-700 flex items-center justify-between">
-                    {isOpen && (
-                        <Link to="/profile" className="text-indigo-400 hover:underline flex items-center space-x-2">
-                            <Users className="h-5 w-5" />
-                            <span>Profile</span>
-                        </Link>
-                    )}
-
-                    <div className="flex item-center justify-center">
-                        <button onClick={handleToggle} className="p-1 rounded-full hover:bg-gray-700 transition-colors duration-200">
-                            {isOpen ? <X className="h-5 w-5 text-gray-300 hover:text-white" /> : <Menu className="h-5 w-5 text-gray-300 hover:text-white" />}
-                        </button>
-                    </div>
-                </div> */}
             </div>
         </>
     )
@@ -143,22 +125,20 @@ useEffect(() => {
 const NavItem = ({ to, icon: Icon, label, active, isOpen, onClickSide, setExpandedItem }) => {
     const navigate = useNavigate();
     const handleClick = () => {
-
-        // if (onClickSide) onClickSide();
         if (setExpandedItem) setExpandedItem(null);
-        navigate(to, { replace: true });  //replaces the current history entry
+        navigate(to, { replace: true });
     };
 
     return (
         <div
             onClick={handleClick}
             className={`flex items-center p-3 my-3 rounded-lg cursor-pointer transition-all duration-200 ${active ? 
-                "bg-blue-600 text-white shadow-md" : "text-blue-900 hover:bg-blue-100 hover:text-blue-900"
+                "bg-white text-blue-900 shadow-md" : "text-white hover:bg-blue-700 hover:text-white"
                 } space-x-3`}
         >
-            <Icon className={`h-5 w-5 ${active ? "text-white" : "text-blue-600"}`} />
+            <Icon className={`h-5 w-5 ${active ? "text-blue-900" : "text-white"}`} />
             {isOpen && (
-                <span className={`whitespace-nowrap ${active ? "text-white font-medium" : "text-blue-600"}`}>
+                <span className={`whitespace-nowrap ${active ? "text-blue-900 font-medium" : "text-white"}`}>
                     {label}
                 </span>
             )}

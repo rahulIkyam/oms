@@ -55,49 +55,63 @@ function CustomerOrderCreation() {
 
             setIsLoading(true);
             try {
-                const response2 = await axiosAuth.get(`/public/user/get_and_save_all_customer_data`);
-                const response = await axiosAuth.get(`/public/customer_master/get_all_s4hana_customermaster`);
+                const saveResponse = await axiosAuth.get(`/public/user/get_and_save_all_customer_data`);
 
-                if (response.status === 200) {
-                    const jsonData = response.data;
+                if (saveResponse.status === 200) {
+                    console.log("Customer data saved successfully:", saveResponse.data);
 
-                    const customer = jsonData.find((item) => item.customer === auth.userId);
-                    console.log(customer);
+                    const response = await axiosAuth.get(`/public/customer_master/get_all_s4hana_customermaster`);
 
-                    if (customer) {
-                        setCustomerData({
-                            customerName: customer.customerName || '',
-                            addressID: customer.addressID || '',
-                            cityName: customer.cityName || '',
-                            postalCode: customer.postalCode || '',
-                            streetName: customer.streetName || '',
-                            region: customer.region || '',
-                            telephoneNumber1: customer.telephoneNumber1 || '',
-                            country: customer.country || '',
-                            districtName: customer.districtName || '',
-                            emailAddress: customer.emailAddress || '',
-                            mobilePhoneNumber: customer.mobilePhoneNumber || '',
-                        });
+                    if (response.status === 200) {
+                        const jsonData = response.data;
+
+                        const customer = jsonData.find((item) => item.customer === auth.userId);
+                        console.log('------customer-----');
+                        console.log(customer);
+
+                        if (customer) {
+                            setCustomerData({
+                                customerName: customer.customerName || '',
+                                addressID: customer.addressID || '',
+                                cityName: customer.cityName || '',
+                                postalCode: customer.postalCode || '',
+                                streetName: customer.streetName || '',
+                                region: customer.region || '',
+                                telephoneNumber1: customer.telephoneNumber1 || '',
+                                country: customer.country || '',
+                                districtName: customer.districtName || '',
+                                emailAddress: customer.emailAddress || '',
+                                mobilePhoneNumber: customer.mobilePhoneNumber || '',
+                            });
+                            console.log('-----------');
+                            console.log(auth.userId);
+                            console.log(customer);
+                        } else {
+                            console.warn(`Customer with Customer ID ${auth.userId} not found.`);
+                            setCustomerData(null); // Clear to avoid stale data
+                        }
                     } else {
-                        console.warn(`Customer with ID ${auth.userId} not found.`);
-                        setCustomerData(null); // Clear to avoid stale data
+                        console.error('Failed to load customer data:', response);
                     }
                 } else {
-                    console.error('Failed to load customer data:', response);
+                    console.error('Failed to save customer data:', saveResponse);
                 }
+
+
             } catch (error) {
                 console.error('Error fetching customer data:', error);
             } finally {
                 setIsLoading(false);
             }
         };
-
         fetchCustomer();
     }, [auth.userId]); // Fetch only when userId changes
 
 
     useEffect(() => {
         fetchProducts(currentPage, itemsPerPage);
+        console.log('------+++++-----');
+        console.log(auth.userId);
     }, [currentPage]);
 
     const createOrder = async () => {
@@ -398,7 +412,7 @@ function CustomerOrderCreation() {
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap">
                                         <input
-                                            type="number"
+                                            type="text"
                                             min="0"
                                             className="w-20 border border-gray-300 rounded-md px-3 py-2 text-sm"
                                             value={row.qty}

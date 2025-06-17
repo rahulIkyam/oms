@@ -19,6 +19,10 @@ function CreateUser() {
     const [userCompany, setUserCompany] = useState(auth.company || '');
     const [userMobile, setUserMobile] = useState('');
     const [userLocation, setUserLocation] = useState('');
+    const [houseNo, setHouseNo] = useState('');
+    const [streetName, setStreetName] = useState('');
+    const [postalCode, setPostalCode] = useState('');
+    const [cityName, setCityName] = useState('');
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -32,6 +36,13 @@ function CreateUser() {
         }
     };
 
+    const handlePostalCode = (e) => {
+        const input = e.target.value.replace(/\D/g, '');
+        if (input) {
+            setPostalCode(input);
+        }
+    }
+
     const handleSubmit = async () => {
         const requestData2 = {
             active: true,
@@ -42,6 +53,12 @@ function CreateUser() {
             role: selectedRole,
             userName: userName,
             returnCredit: 0.0,
+            houseNumber: houseNo,
+            language: "en",
+            postalCode: postalCode,
+            streetName: streetName,
+            cityName: cityName,
+            country: "IN"
         };
         console.log(requestData2);
         if (!selectedRole || !userName.trim() || !userEmail.trim() || !userMobile.trim() || !userLocation.trim()) {
@@ -71,6 +88,12 @@ function CreateUser() {
             role: selectedRole,
             userName: userName,
             returnCredit: 0.0,
+            houseNumber: houseNo,
+            language: "en",
+            postalCode: postalCode,
+            streetName: streetName,
+            cityName: cityName,
+            country: "IN"
         };
         setLoading(true);
         try {
@@ -149,7 +172,7 @@ function CreateUser() {
                             <select
                                 value={selectedRole}
                                 onChange={(e) => setSelectedRole(e.target.value)}
-                                className="bg-white border border-gray-300 rounded-lg px-4 pr-5 py-2 h-12 w-full appearance-none"
+                                className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none"
                             >
                                 <option value="" disabled>Select Role</option>
                                 <option value="Admin">Admin</option>
@@ -174,15 +197,15 @@ function CreateUser() {
                             placeholder="User Name"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
-                            className="bg-white border border-gray-300 rounded-lg px-4 py-2 h-12 w-full"
+                            className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none"
                         />
 
                         <input
                             type="email"
-                            placeholder="Email Address"
+                            placeholder="Email"
                             value={userEmail}
                             onChange={(e) => setUserEmail(e.target.value)}
-                            className="bg-white border border-gray-300 rounded-lg px-4 py-2 h-12 w-full"
+                            className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none"
                         />
 
                         {/* Row 2 */}
@@ -190,7 +213,7 @@ function CreateUser() {
                             type="text"
                             value={userCompany}
                             readOnly
-                            className="bg-white border border-gray-300 rounded-lg px-4 py-2 h-12 w-full  cursor-not-allowed"
+                            className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none cursor-not-allowed"
                         />
 
                         <input
@@ -198,7 +221,7 @@ function CreateUser() {
                             placeholder="Mobile Number"
                             value={userMobile}
                             onChange={handleMobileChange}
-                            className="bg-white border border-gray-300 rounded-lg px-4 py-2 h-12 w-full"
+                            className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none"
                         />
 
                         <input
@@ -206,7 +229,40 @@ function CreateUser() {
                             placeholder="Location"
                             value={userLocation}
                             onChange={(e) => setUserLocation(e.target.value)}
-                            className="bg-white border border-gray-300 rounded-lg px-4 py-2 h-12 w-full"
+                            className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none"
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="House No"
+                            value={houseNo}
+                            onChange={(e) => setHouseNo(e.target.value)}
+                            className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none"
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Street Name"
+                            value={streetName}
+                            onChange={(e) => setStreetName(e.target.value)}
+                            className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none"
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="Postal Code"
+                            value={postalCode}
+                            // onChange={(e) => setPostalCode(e.target.value)}
+                            onChange={handlePostalCode}
+                            className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none"
+                        />
+
+                        <input
+                            type="text"
+                            placeholder="City Name"
+                            value={cityName}
+                            onChange={(e) => setCityName(e.target.value)}
+                            className="block w-full rounded-xl bg-white px-3 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500  sm:text-sm/6 border border-neutral-300 appearance-none"
                         />
                     </div>
 
