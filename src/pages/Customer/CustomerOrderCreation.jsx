@@ -6,9 +6,21 @@ import { FaArrowLeft, FaCalendarAlt } from 'react-icons/fa';
 import { MinusCircle } from 'lucide-react';
 import buffer from '../../assets/buffer.gif';
 import Swal from 'sweetalert2';
-import SearchableDropdown from '../../components/SearchableDropdown';
+import * as XLSX from 'xlsx';
+import { useUploadProgress } from '../../components/CircularProgressBar';
 
 function CustomerOrderCreation() {
+
+    const {
+        uploadDProgress,
+        isUploading,
+        setIsUploading,
+        startUpload,
+        endUpload,
+        resetUpload,
+        trackUploadProgress,
+        contentLength
+    } = useUploadProgress();
 
     const { auth, logout } = useAuth();
     const navigate = useNavigate();
@@ -27,12 +39,17 @@ function CustomerOrderCreation() {
     const [itemsPerPage] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
     const [customerData, setCustomerData] = useState(null);
+    const [remarks, setRemarks] = useState('');
+    const [showUploadModal, setShowUploadModal] = useState(false);
+    const [excelFile, setExcelFile] = useState(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploadError, setUploadError] = useState('');
 
     const fetchProducts = async (page, limit) => {
         try {
             setIsLoading(true);
             const response = await axiosAuth.get(
-                `/public/productmaster/get_all_s4hana_productmaster?page=${page}&limit=${limit}`
+                `/ik_oms_s4/productmaster/get_all_s4hana_productmaster?page=${page}&limit=${limit}`
             );
 
             if (response.status === 200) {
@@ -55,12 +72,12 @@ function CustomerOrderCreation() {
 
             setIsLoading(true);
             try {
-                const saveResponse = await axiosAuth.get(`/public/user/get_and_save_all_customer_data`);
+                const saveResponse = await axiosAuth.get(`/ik_oms_s4/user/get_and_save_all_customer_data`);
 
                 if (saveResponse.status === 200) {
                     console.log("Customer data saved successfully:", saveResponse.data);
 
-                    const response = await axiosAuth.get(`/public/customer_master/get_all_s4hana_customermaster`);
+                    const response = await axiosAuth.get(`/ik_oms_s4/customer_master/get_all_s4hana_customermaster`);
 
                     if (response.status === 200) {
                         const jsonData = response.data;
@@ -110,8 +127,6 @@ function CustomerOrderCreation() {
 
     useEffect(() => {
         fetchProducts(currentPage, itemsPerPage);
-        console.log('------+++++-----');
-        console.log(auth.userId);
     }, [currentPage]);
 
     const createOrder = async () => {
@@ -130,6 +145,7 @@ function CustomerOrderCreation() {
                 qty: row.qty || 0,
                 standardPrice: product.standardPrice || 0,
                 totalAmount: (row.qty || 0) * (product.standardPrice || 0),
+                notes: row.notes || ''
             };
         });
 
@@ -145,15 +161,44 @@ function CustomerOrderCreation() {
             streetName: customerData.streetName || '',
             telephoneNumber: customerData.telephoneNumber1 || '',
             total: total,
+            remarks: remarks,
             items: items,
         };
-        setIsLoading(true);
+        // setIsLoading(true);
+        const contentLength = JSON.stringify(body).length;
+        const shouldSlowDown = contentLength > 20000;
+        const payload = new Blob([JSON.stringify(body)], {
+            type: 'application/json'
+        });
+        const calculatedLength = payload.size;
+        startUpload(calculatedLength);
         try {
+
+            // Artificial delay before actual upload
+            // if (shouldSlowDown) {
+            //     await new Promise(resolve => setTimeout(resolve, 1000));
+            // }
+
+
+
             const response = await axiosAuth.post(
                 `${auth.company}/order_master/add_order_master`,
-                body
+                payload,
+                {
+                    onUploadProgress: trackUploadProgress,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': calculatedLength
+                    },
+                    transformRequest: [(data) => data]
+                }
             );
 
+            // Artificial delay before completion
+            // if (shouldSlowDown) {
+            //     await new Promise(resolve => setTimeout(resolve, 1500));
+            // }
+            endUpload();
             if (response.status === 200 && response.data.status === "success") {
                 await Swal.fire({
                     icon: 'success',
@@ -163,26 +208,17 @@ function CustomerOrderCreation() {
                 });
 
                 navigate('/customer-orderList');
-                setIsLoading(false);
             } else {
-                console.error("Failed to save data:", response);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Failed to place order',
-                    text: 'Something went wrong.',
-                });
-
-                setIsLoading(false);
+                throw new Error("Failed to save data");
             }
         } catch (error) {
             console.error("Error creating order:", error);
+            resetUpload();
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: 'Error creating order.',
             });
-
-            setIsLoading(false);
         }
     }
 
@@ -198,7 +234,8 @@ function CustomerOrderCreation() {
             searchTerm: '',
             showDropdown: false,
             qty: 0,
-            totalAmount: 0
+            totalAmount: 0,
+            notes: ''
         };
         setRows(prev => [...prev, newRow]);
     };
@@ -232,8 +269,132 @@ function CustomerOrderCreation() {
         setRows(updatedRows);
     };
 
+    const handleNotesChange = (id, notes) => {
+        const updateRows = rows.map(row => {
+            if (row.id === id) {
+                return {
+                    ...row,
+                    notes
+                };
+            }
+            return row;
+        });
+        setRows(updateRows);
+    }
+
     // Calculate total amount
     const totalAmountSum = rows.reduce((sum, row) => sum + row.totalAmount, 0);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.name.match(/\.(xlsx|xls)$/i)) {
+            setUploadError('Please upload a valid Excel file (.xlsx or .xls)');
+            return;
+        }
+
+        setExcelFile(file);
+        setUploadError('');
+    };
+
+
+    const handleExcelUpload = async () => {
+        if (!excelFile) return;
+
+        try {
+            setUploadProgress(10);
+            const data = await readExcelFile(excelFile);
+            setUploadProgress(50);
+
+            // Process in chunks to avoid UI freezing
+            const chunkSize = 100; // Process 100 rows at a time
+            const totalChunks = Math.ceil(data.length / chunkSize);
+            let processedRows = [];
+
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * chunkSize;
+                const end = start + chunkSize;
+                const chunk = data.slice(start, end);
+
+                const newRows = chunk.map((item, index) => {
+                    // Optimized product search - create a map first
+                    const productMap = products.reduce((acc, product) => {
+                        acc[product.product] = product;
+                        acc[product.productDescription] = product;
+                        return acc;
+                    }, {});
+
+                    const product = productMap[item['Product']] ||
+                        productMap[item['Product Name']];
+
+                    return {
+                        id: Date.now() + start + index,
+                        sNo: rows.length + start + index + 1,
+                        product: product || null,
+                        searchTerm: product ? `${product.product} - ${product.productDescription}` : '',
+                        qty: parseInt(item['Qty']) || 0,
+                        totalAmount: product ? (parseInt(item['Qty']) || 0) * product.standardPrice : 0,
+                        notes: item['Notes'] || '',
+                        showDropdown: false
+                    };
+                });
+
+                processedRows = [...processedRows, ...newRows];
+                setUploadProgress(50 + (i / totalChunks * 40)); // Update progress
+            }
+
+            setRows([...rows, ...processedRows]);
+            setUploadProgress(100);
+            setTimeout(() => setShowUploadModal(false), 500);
+        } catch (error) {
+            console.error('Error processing Excel file:', error);
+            setUploadError('Error processing file. Please check the format and try again.');
+            setUploadProgress(0);
+        }
+    };
+
+
+    const readExcelFile = (file) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                    resolve(jsonData);
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            reader.onerror = (error) => reject(error);
+            reader.readAsArrayBuffer(file);
+        });
+    };
+
+    const downloadTemplate = () => {
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet([
+            {
+                "S.No": "",
+                'Product': '',
+                'Product Name': '',
+                'Qty': '',
+                'Category': '',
+                'Unit': '',
+                'Price': '',
+                'Total Amount': '',
+                'Notes': ''
+            }
+        ]);
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
+        XLSX.writeFile(workbook, "Product_Import_Template.xlsx")
+    }
 
     if (isLoading) return (
         <div className='flex justify-center items-center h-100'>
@@ -242,11 +403,57 @@ function CustomerOrderCreation() {
                     <img src={buffer} alt="Loading..." className="w-50 h-50" />
                 </div>
             </div>
+            {/* <CircularProgressBar 
+                isLoading={isLoading} 
+                progress={progress} 
+                loadingText="Processing your order..."
+            /> */}
         </div>
     );
 
+    if (isUploading) {
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-white/50 z-50">
+                <div className="bg-white p-6 rounded-lg shadow-xl text-center min-w-[300px]">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                        <div
+                            className="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out"
+                            style={{ width: `${uploadDProgress}%` }}
+                        ></div>
+                    </div>
+                    <div className="space-y-2">
+                        <p className="text-lg font-medium">
+                            {uploadDProgress < 100 ? (
+                                `${uploadDProgress}% Complete`
+                            ) : (
+                                'Finalizing...'
+                            )}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                            {uploadDProgress < 100 ? (
+                                'Please wait while we process your order'
+                            ) : (
+                                'Almost done!'
+                            )}
+                        </p>
+                        <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                                className="h-full bg-blue-200 transition-all duration-1000 ease-out"
+                                style={{ width: `${uploadDProgress}%` }}
+                            ></div>
+                        </div>
+                    </div>
+
+                    {/* <p className="text-xs mt-3 text-gray-400">
+                        Content-Length: {contentLength} bytes
+                    </p> */}
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="p-6">
+        <div className="p-6 flex flex-col">
             {/* App Bar */}
             <div className="flex flex-col md:flex-row gap-4 flex-grow mb-6 justify-between">
                 <div className="flex items-center gap-3 mb-6">
@@ -261,9 +468,8 @@ function CustomerOrderCreation() {
 
                 <div className="w-full md:w-auto">
                     <button
-                        className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
+                        className="w-full md:w-auto px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300 cursor-pointer"
                         onClick={async () => {
-                            console.log(customerData);
                             const isCustomerReady = !!customerData?.customerName;
                             const hasProducts = rows.length > 0;
 
@@ -286,17 +492,23 @@ function CustomerOrderCreation() {
             </div>
 
             {/* Order Date */}
-            <div className="flex flex-col gap-2 mb-6">
-                <h5 className="text-base font-medium text-gray-800">Order Date</h5>
+            <div className="flex flex-col md:flex-row gap-4 mb-6 items-center">
+                <div className="flex-1">
+                    <h5 className="text-base font-medium text-gray-800">Order Date</h5>
 
-                <div className="relative w-full md:w-auto">
-                    <input
-                        type="text"
-                        value={formattedDisplayDate}
-                        readOnly
-                        className="bg-white border border-gray-300 rounded-lg pl-10 pr-4 py-2 h-12 w-full md:w-auto text-gray-800 cursor-not-allowed"
-                    />
-                    <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                    <div className="relative w-full md:w-auto">
+                        <input
+                            type="text"
+                            value={formattedDisplayDate}
+                            readOnly
+                            className="bg-white border border-gray-300 rounded-lg pl-10 pr-4 py-2 h-12 w-full md:w-auto text-gray-800 cursor-not-allowed"
+                        />
+                        <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+                    </div>
+                </div>
+
+                <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div><strong>Customer Name:</strong> {customerData?.customerName}</div>
                 </div>
             </div>
 
@@ -307,11 +519,12 @@ function CustomerOrderCreation() {
                             <tr className="border-b border-gray-300">
                                 <th className="px-4 py-3 text-left ">S.No</th>
                                 <th className="px-4 py-3 text-left ">Product Name</th>
+                                <th className="px-4 py-3 text-left ">Qty</th>
                                 <th className="px-4 py-3 text-left ">Category</th>
                                 <th className="px-4 py-3 text-left ">Unit</th>
                                 <th className="px-4 py-3 text-left ">Price</th>
-                                <th className="px-4 py-3 text-left ">Qty</th>
                                 <th className="px-4 py-3 text-left ">Total Amount</th>
+                                <th className="px-4 py-3 text-left ">Notes</th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
                             </tr>
                         </thead>
@@ -369,9 +582,13 @@ function CustomerOrderCreation() {
                                                     style={{ maxHeight: '300px' }}
                                                 >
                                                     {products
-                                                        .filter(product =>
-                                                            product.productDescription.toLowerCase().includes((row.searchTerm || '').toLowerCase())
-                                                        )
+                                                        .filter(product => {
+                                                            const searchTerm = (row.searchTerm || '').toLowerCase();
+                                                            return (
+                                                                product.productDescription.toLowerCase().includes(searchTerm) ||
+                                                                product.product.toLowerCase().includes(searchTerm)
+                                                            );
+                                                        })
                                                         .map((product) => (
                                                             <div
                                                                 key={product.product}
@@ -383,7 +600,7 @@ function CustomerOrderCreation() {
                                                                             return {
                                                                                 ...r,
                                                                                 product: product,
-                                                                                searchTerm: product.productDescription,
+                                                                                searchTerm: `${product.product} - ${product.productDescription}`,
                                                                                 totalAmount: product.standardPrice * (r.qty || 0),
                                                                                 showDropdown: false
                                                                             };
@@ -393,12 +610,22 @@ function CustomerOrderCreation() {
                                                                     setRows(updatedRows);
                                                                 }}
                                                             >
-                                                                {product.productDescription}
+                                                                <div className="font-medium">{product.product}</div>
+                                                                <div className="text-gray-500">{product.productDescription}</div>
                                                             </div>
                                                         ))}
                                                 </div>
                                             )}
                                         </div>
+                                    </td>
+                                    <td className="px-4 py-4 whitespace-nowrap">
+                                        <input
+                                            type="text"
+                                            min="0"
+                                            className="w-20 border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                            value={row.qty}
+                                            onChange={(e) => handleQtyChange(row.id, e.target.value)}
+                                        />
                                     </td>
 
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -410,17 +637,17 @@ function CustomerOrderCreation() {
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {row.product ? `${row.product.standardPrice}` : '-'}
                                     </td>
-                                    <td className="px-4 py-4 whitespace-nowrap">
-                                        <input
-                                            type="text"
-                                            min="0"
-                                            className="w-20 border border-gray-300 rounded-md px-3 py-2 text-sm"
-                                            value={row.qty}
-                                            onChange={(e) => handleQtyChange(row.id, e.target.value)}
-                                        />
-                                    </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {row.product ? `${row.totalAmount.toFixed(2)}` : '-'}
+                                    </td>
+                                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <input
+                                            type="text"
+                                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                                            value={row.notes || ''}
+                                            onChange={(e) => handleNotesChange(row.id, e.target.value)}
+                                            placeholder="Enter notes"
+                                        />
                                     </td>
                                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <button
@@ -445,6 +672,14 @@ function CustomerOrderCreation() {
                         Add Product
                     </button>
 
+                    {/* Excel Upload Button */}
+                    {/* <button
+                        onClick={() => setShowUploadModal(true)}
+                        className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300 text-sm cursor-pointer"
+                    >
+                        Import from Excel
+                    </button> */}
+
                     <div className="text-lg font-semibold">
                         {rows.length > 0 ? (
                             <span>Total: {totalAmountSum.toFixed(2)} {rows[0]?.product?.currency || 'INR'}</span>
@@ -453,8 +688,74 @@ function CustomerOrderCreation() {
                 </div>
             </div>
 
+            <div className="mt-auto ml-auto pt-6 w-full md:w-1/2">
+                <h5 className="text-base font-medium text-gray-800 mb-2">Remarks</h5>
+                <textarea
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[100px]"
+                />
+            </div>
+
+            {/* Excel Upload */}
+            {showUploadModal && (
+                <div className="fixed inset-0 bg-black/20 backdrop-blur-md flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                        <h3 className="text-lg font-medium mb-4">Import Products from Excel</h3>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium mb-2">
+                                Download Template:
+                                <a
+                                    onClick={downloadTemplate}
+                                    className="ml-2 text-blue-600 hover:underline cursor-pointer"
+                                >
+                                    Download
+                                </a>
+                            </label>
+                            <input
+                                type="file"
+                                accept=".xlsx, .xls"
+                                onChange={handleFileChange}
+                                className="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-md file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-blue-50 file:text-blue-700
+                                hover:file:bg-blue-100"
+                            />
+                        </div>
+                        {uploadError && <div className="text-red-500 mb-4">{uploadError}</div>}
+
+                        {uploadProgress > 0 && uploadProgress < 100 && (
+                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                <div
+                                    className="bg-blue-600 h-2.5 rounded-full"
+                                    style={{ width: `${uploadProgress}%` }}
+                                ></div>
+                            </div>
+                        )}
+
+                        <div className="flex justify-end gap-2 mt-4">
+                            <button
+                                onClick={() => setShowUploadModal(false)}
+                                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium cursor-pointer"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleExcelUpload}
+                                disabled={!excelFile}
+                                className={`px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium ${!excelFile ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700 cursor-pointer'}`}
+                            >
+                                Import
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
-    )
+    );
 }
 
 export default CustomerOrderCreation

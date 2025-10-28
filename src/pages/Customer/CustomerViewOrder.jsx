@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
- import buffer from '../../assets/buffer.gif';
+import buffer from '../../assets/buffer.gif';
 
 function CustomerViewOrder() {
     const { state } = useLocation();
@@ -30,7 +30,7 @@ function CustomerViewOrder() {
             <div className="flex flex-col md:flex-row gap-4 flex-grow mb-6 justify-between">
                 <div className="flex items-center gap-3 mb-6">
                     <button
-                        onClick={() => navigate('/customer-orderList', {state: {currentPage}})}
+                        onClick={() => navigate('/customer-orderList', { state: { currentPage } })}
                         className="text-gray-600 hover:text-blue-600 cursor-pointer"
                     >
                         <FaArrowLeft size={20} />
@@ -42,6 +42,7 @@ function CustomerViewOrder() {
             {/* Order Info */}
             <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div><strong>Order ID:</strong> {order?.orderId}</div>
+                <div><strong>Customer Name:</strong> {order?.contactPerson}</div>
                 <div><strong>Order Date:</strong> {order?.orderDate}</div>
             </div>
 
@@ -53,11 +54,12 @@ function CustomerViewOrder() {
                         <tr className="border-b border-gray-300">
                             <th className="py-3 px-4 text-left">S.No</th>
                             <th className="py-3 px-4 text-left">Product Name</th>
+                            <th className="py-3 px-4 text-left">Qty</th>
                             <th className="py-3 px-4 text-left">Category</th>
                             <th className="py-3 px-4 text-left">Unit</th>
                             <th className="py-3 px-4 text-left">Price</th>
-                            <th className="py-3 px-4 text-left">Qty</th>
                             <th className="py-3 px-4 text-left">Total Amount</th>
+                            <th className="py-3 px-4 text-left">Notes</th>
                         </tr>
                     </thead>
 
@@ -66,11 +68,12 @@ function CustomerViewOrder() {
                             <tr key={item.orderMasterItemId} className="border-t border-gray-300">
                                 <td className="px-4 py-3">{index + 1}</td>
                                 <td className="px-4 py-3">{item.productDescription}</td>
+                                <td className="px-4 py-3">{item.qty}</td>
                                 <td className="px-4 py-3">{item.categoryName}</td>
                                 <td className="px-4 py-3">{item.baseUnit}</td>
                                 <td className="px-4 py-3">{item.standardPrice}</td>
-                                <td className="px-4 py-3">{item.qty}</td>
                                 <td className="px-4 py-3">{item.totalAmount}</td>
+                                <td className="px-4 py-3">{item.notes}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -85,10 +88,11 @@ function CustomerViewOrder() {
                         >
                             <p><span className="font-medium">S.No:</span> {index + 1}</p>
                             <p><span className="font-medium">Product Name:</span> {item.productDescription}</p>
+                            <p><span className="font-medium">Qty:</span> {item.qty}</p>
                             <p><span className="font-medium">Category:</span> {item.categoryName}</p>
                             <p><span className="font-medium">Unit:</span> {item.baseUnit}</p>
                             <p><span className="font-medium">Price:</span> ₹{item.standardPrice}</p>
-                            <p><span className="font-medium">Qty:</span> {item.qty}</p>
+                            <p><span className="font-medium">Notes:</span> {item.notes}</p>
                             <p><span className="font-medium">Total Amount:</span> ₹{item.totalAmount}</p>
                         </div>
                     ))}
@@ -100,6 +104,15 @@ function CustomerViewOrder() {
                 <div className="text-lg font-semibold">
                     Total: ₹{order?.total}
                 </div>
+            </div>
+
+            <div className="mt-auto ml-auto pt-6 w-full md:w-1/2">
+                <h5 className="text-base font-medium text-gray-800 mb-2">Remarks</h5>
+                <textarea
+                    value={order.remarks}
+                    readOnly
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm min-h-[100px]"
+                />
             </div>
         </div>
     );
