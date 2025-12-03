@@ -3,10 +3,11 @@ import Swal from "sweetalert2";
 
 const authInstance = (auth, logout, navigate) => {
 
-    const base_url = "https://ordermanagement-empathic-mandrill-be.cfapps.us10-001.hana.ondemand.com/api";
+    const base_url = "https://oms-turbulent-bilby-rp.cfapps.us10-001.hana.ondemand.com/api";
+    // const base_url = "https://6gnvztgt-8080.inc1.devtunnels.ms/api";  //Local
 
     const instance = axios.create({
-        baseURL: base_url,
+        baseURL: base_url,onUploadProgress: ()=>{},
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${auth.token}`,

@@ -31,7 +31,7 @@ function CustomerDashboard() {
     const fetchOrderList = async (page, limit) => {
         try {
             setIsLoading(true);
-            const response = await axiosauth.get(`${auth.company}/order_master/get_all_ordermaster_by_customer/${localStorage.getItem('userId')}`);
+            const response = await axiosauth.get(`order_master/get_all_ordermaster_by_customer/${localStorage.getItem('userId')}`);
 
             if (response.status === 200) {
                 const jsonData = response.data;
@@ -48,9 +48,18 @@ function CustomerDashboard() {
     }
 
     const fetchKpiCount = async () => {
+        //   const updatedKpi = {
+        //             openOrders:  24,
+        //             pickedOrders: 13,
+        //             deliveredOrders:  6,
+        //             completedOrders: 8
+        //         };
+
+        //         setKpiData(updatedKpi);
         try {
             setIsLoading(true);
-            const response = await axiosauth.get(`${auth.company}/order_master/get_customer_order_counts/${auth.userId}`);
+            const response = await axiosauth.get(`order_master/get_customer_order_counts/${auth.userId}`);
+
 
             if (response.status === 200) {
                 const data = response.data;
@@ -123,7 +132,7 @@ function CustomerDashboard() {
     );
 
     return (
-        <div className="p-6">
+        <div className="mt-10">
             <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
             {/* KPI */}
             <div className="kpi grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -187,7 +196,7 @@ function CustomerDashboard() {
                         <thead className="bg-gray-100 h-[50px]">
                             <tr className="border-b border-gray-300">
                                 <th className="py-3 px-4 text-left">Order ID</th>
-                                <th className="py-3 px-4 text-left">Customer Name</th>
+                                <th className="py-3 px-4 text-left">Contact Person</th>
                                 <th className="py-3 px-4 text-left">Order Date</th>
                                 <th className="py-3 px-4 text-left">Total</th>
                                 <th className="py-3 px-4 text-left">Status</th>

@@ -26,7 +26,7 @@ function EmployeeProductList() {
     const getchProductsList = async (page, limit) => {
         try {
             setIsLoading(true);
-            const response = await axiosAuth.get(`/public/productmaster/get_all_s4hana_productmaster`);
+            const response = await axiosAuth.get(`/productmaster/get_all_s4hana_productmaster`);
 
             if (response.status === 200) {
                 const data = response.data;
@@ -90,7 +90,7 @@ function EmployeeProductList() {
             <h1 className="text-2xl font-bold text-gray-800 mb-6">Product List</h1>
 
             {/* Table and Search*/}
-            <div className="bg-white p-6 mt-10 rounded-lg shadow-md">
+            <div className="bg-white p-0  rounded-lg shadow-md">
 
                 {/* Search */}
                 <div className="flex flex-col md:flex-row gap-4 flex-grow mb-6">
@@ -100,7 +100,7 @@ function EmployeeProductList() {
                         </div>
                         <input
                             type="text"
-                            placeholder="Enter Order ID..."
+                            placeholder="Search for Product"
                             className="pl-10 pr-4 py-2 w-full border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             value={searchProductName}
                             onChange={(e) => {

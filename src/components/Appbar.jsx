@@ -35,6 +35,9 @@ function Appbar({ isDrawerHidden, toggleDrawer }) {
                 popup: 'scale-down',
             }
         }).then((result) => {
+            localStorage.clear();
+            
+            
             if (result.isConfirmed) {
                 Swal.fire({
                     icon: 'success',
@@ -44,7 +47,8 @@ function Appbar({ isDrawerHidden, toggleDrawer }) {
                         icon: 'scale-down',
                     }
                 }).then((res) => {
-                    localStorage.removeItem('token');
+                    // localStorage.clear();
+                    // navigate('/login', { replace: true });
                     navigate('/login', { replace: true });
                     window.location.reload();
                 })

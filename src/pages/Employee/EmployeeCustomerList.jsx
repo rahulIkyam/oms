@@ -28,7 +28,7 @@ function EmployeeCustomerList() {
     const fetchCustomerList = async (page, limit) => {
         try {
             setIsLoading(true);
-            const response = await axiosAuth.get(`public/customer_master/get_all_s4hana_customermaster`)
+            const response = await axiosAuth.get(`customer_master/get_all_s4hana_customermaster`)
 
             if (response.status === 200) {
                 const data = response.data;

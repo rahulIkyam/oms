@@ -23,9 +23,12 @@ function CustomerOrderList() {
     const rowsPerPage = 10;
 
     const fetchOrderList = async () => {
+        setOrderList(
+            []
+        );
         try {
             setIsLoading(true);
-            const response = await axiosauth.get(`${auth.company}/order_master/get_all_ordermaster_by_customer/${localStorage.getItem('userId')}`);
+            const response = await axiosauth.get(`order_master/get_all_ordermaster_by_customer/${localStorage.getItem('userId')}`);
 
             if (response.status === 200) {
                 const jsonData = response.data;
@@ -44,7 +47,7 @@ function CustomerOrderList() {
     const retryOrder = async (orderId) => {
         try {
             setIsLoading(true);
-            const response = await axiosauth.post(`${auth.company}/order_master/repost/${orderId}`);
+            const response = await axiosauth.post(`order_master/repost/${orderId}`);
 
             if (response.status === 200) {
                 const jsonData = response.data;
@@ -54,12 +57,12 @@ function CustomerOrderList() {
         } catch (error) {
             console.error("Error fetching Orders:", error);
 
-            if(error.response && error.response.data && error.response.data.error) {
+            if (error.response && error.response.data && error.response.data.error) {
                 setError(error.response.data.error);
             } else {
                 setError("Something went wrong while fetching orders.");
             }
-            
+
             setIsLoading(false);
         } finally {
             setIsLoading(false);
@@ -121,7 +124,7 @@ function CustomerOrderList() {
 
 
     return (
-        <div className="p-0">
+        <div className="mt-10">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <h1 className="text-2xl font-bold text-gray-800 mb-6">Order List</h1>
 
@@ -164,7 +167,7 @@ function CustomerOrderList() {
                         <thead className="bg-gray-100 h-[50px]">
                             <tr className="border-b border-gray-300">
                                 <th className="py-3 px-4 text-left">Order ID</th>
-                                <th className="py-3 px-4 text-left">Customer Name</th>
+                                <th className="py-3 px-4 text-left">Contact Person</th>
                                 <th className="py-3 px-4 text-left">Order Date</th>
                                 <th className="py-3 px-4 text-left">Total</th>
                                 <th className="py-3 px-4 text-left">Sync Status</th>

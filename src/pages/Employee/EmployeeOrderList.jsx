@@ -28,7 +28,7 @@ function EmployeeOrderList() {
     const fetchOrderList = async () => {
         try {
             setIsLoading(true);
-            const response = await axiosAuth.get(`/${auth.company}/order_master/get_all_ordermaster`);
+            const response = await axiosAuth.get(`order_master/get_all_ordermaster`);
             if (response.status === 200) {
                 const data = response.data;
                 setOrderList(data);

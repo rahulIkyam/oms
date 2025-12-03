@@ -67,10 +67,10 @@ function Login() {
 
   const checkLogin = async () => {
     setLoading(true);
-    const tempJson = { userName: username, password: password };
+    const tempJson = { email: username, password: password };
 
     try {
-      const res = await axios.post(`${base_url}/public/user_master/login-authenticate`, tempJson);
+      const res = await axios.post(`${base_url}/user_master/login-authenticate`, tempJson);
 
       if (res.status === 200) {
           setLoading(false);
@@ -102,22 +102,24 @@ function Login() {
   return (
     <div className='login-container flex flex-col md:flex-row h-screen'>
       {/* left side */}
-      <div className=" flex flex-col items-center justify-center  md:h-full mt-6 md:mt-0 md:m-10">
-          <h2 className="text-4xl  font-bold text-blue-600 pb-10 ">
+     <div className='flex-3'>
+       <div className=" flex flex-col items-center justify-center  md:h-full mt-6 md:mt-0 md:m-10">
+          <h2 className="text-4xl  font-bold text-blue-600  ">
             Welcome Back
           </h2>
-          <p className=" hidden md:block text-gray-600 pb-2 pl-30">
+          <p className=" hidden md:block text-gray-600 pb-7 pt-3  text-xl">
             Log in to get started and experience effortless control over your entire order process.
           </p>
         <img
           src={images.loginImg}
           alt="login image"
-          className='hidden md:block w-full h-150 ml-40 object-fill  bg-gray-200'
+          className='hidden md:block w-220 h-150 ml-4 object-fill  bg-gray-00'
 
         />
       </div>
+     </div>
       {/* Right Side */}
-      <div className="login-form w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-8 ">
+      <div className=" flex-2 login-form w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-8 ">
         <img
           src={images.logo}
           alt="login logo"
@@ -133,10 +135,10 @@ function Login() {
               Simplify your order management and gain complete control
             </p>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Username</label>
+              <label className="block text-sm font-medium mb-1">Email</label>
               <input
                 type="text"
-                placeholder="Enter Username"
+                placeholder="Enter Email"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"

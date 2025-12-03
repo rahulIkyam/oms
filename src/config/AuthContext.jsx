@@ -11,13 +11,15 @@ export const AuthProvider = ({ children }) => {
       token,
       company: localStorage.getItem('company'),
       companyName: localStorage.getItem('company Name'),
-      role: localStorage.getItem('role')
+      role: localStorage.getItem('role'),
+      userName: localStorage.getItem('userName')
     } : {
       userId: null,
       token: null,
       company: null,
       companyName: null,
-      role: null
+      role: null,
+      userName:null
     };
   });
 
@@ -36,16 +38,18 @@ export const AuthProvider = ({ children }) => {
   const login = (data) => {
     localStorage.setItem('userId', data.userId);
     localStorage.setItem('token', data.token);
-    localStorage.setItem('company', data.company);
+    localStorage.setItem('company', data.schemaId);
     localStorage.setItem('company Name', data.companyName);
     localStorage.setItem('role', data.role);
+    localStorage.setItem('userName', data.userName);
     
     setAuth({
       userId: data.userId,
       token: data.token,
-      company: data.company,
+      company: data.schemaId,
       companyName: data.companyName,
-      role: data.role
+      role: data.role,
+      userName:data.userName,
     });
   };
 
@@ -56,7 +60,8 @@ export const AuthProvider = ({ children }) => {
       token: null,
       company: null,
       companyName: null,
-      role: null
+      role: null,
+      userName:null
     });
   };
 

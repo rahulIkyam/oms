@@ -32,7 +32,7 @@ function EmployeeDashboard() {
   const fetchKpiCount = async () => {
     try {
       setIsLoading(true);
-      const response = await axiosauth.get(`${auth.company}/order_master/get_order_counts`);
+      const response = await axiosauth.get(`order_master/get_order_counts`);
 
       if (response.status === 200) {
         const data = response.data;
@@ -58,7 +58,7 @@ function EmployeeDashboard() {
   const fetchOrderList = async () => {
     try {
       setIsLoading(true);
-      const response = await axiosauth.get(`${auth.company}/order_master/get_all_ordermaster`);
+      const response = await axiosauth.get(`order_master/get_all_ordermaster`);
 
       if (response.status === 200) {
         const jsonData = response.data;

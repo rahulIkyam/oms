@@ -31,7 +31,9 @@ function UserList() {
   const fetchUserList = async () => {
     try {
       setLoading(true);
-      const response = await axiosAuth.get(`/public/email/get_all_user_master/${auth.company}?page=${currentPage}&limit=${itemsPerPage}`);
+
+
+      const response = await axiosAuth.get(`/email/get_all_user_master/${auth.company}?page=${currentPage}&limit=${itemsPerPage}`);
       setUserList(response.data);
       setFilteredUsers(response.data);
     } catch (error) {
@@ -61,7 +63,7 @@ function UserList() {
     if (result.isConfirmed) {
       try {
         setLoading(true);
-        const response = await axiosAuth.delete(`/public/user/delete_usermaster_by_id/${userId}`);
+        const response = await axiosAuth.delete(`/user/delete_usermaster_by_id/${userId}`);
 
         if (response.status === 200) {
           Swal.fire('Deleted!', 'User has been deleted.', 'success');
@@ -87,7 +89,7 @@ function UserList() {
         : status === 'Inactive'
           ? false
           : null;
-      const response = await axiosAuth.put(`/public/user_master/update_user_status/${userId}/${isActive}`);
+      const response = await axiosAuth.put(`/user_master/update_user_status/${userId}/${isActive}`);
 
       if (response.status === 200) {
         setUserList(prevUsers =>

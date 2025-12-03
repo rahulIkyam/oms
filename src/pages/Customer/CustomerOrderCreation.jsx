@@ -49,7 +49,7 @@ function CustomerOrderCreation() {
         try {
             setIsLoading(true);
             const response = await axiosAuth.get(
-                `/ik_oms_s4/productmaster/get_all_s4hana_productmaster?page=${page}&limit=${limit}`
+                `/productmaster/get_all_s4hana_productmaster?page=${page}&limit=${limit}`
             );
 
             if (response.status === 200) {
@@ -72,12 +72,12 @@ function CustomerOrderCreation() {
 
             setIsLoading(true);
             try {
-                const saveResponse = await axiosAuth.get(`/ik_oms_s4/user/get_and_save_all_customer_data`);
+                const saveResponse = await axiosAuth.get(`/user/get_and_save_all_customer_data`);
 
                 if (saveResponse.status === 200) {
                     console.log("Customer data saved successfully:", saveResponse.data);
 
-                    const response = await axiosAuth.get(`/ik_oms_s4/customer_master/get_all_s4hana_customermaster`);
+                    const response = await axiosAuth.get(`/customer_master/get_all_s4hana_customermaster`);
 
                     if (response.status === 200) {
                         const jsonData = response.data;
@@ -122,7 +122,7 @@ function CustomerOrderCreation() {
             }
         };
         fetchCustomer();
-    }, [auth.userId]); // Fetch only when userId changes
+    }, []); // Fetch only when userId changes
 
 
     useEffect(() => {
@@ -182,7 +182,7 @@ function CustomerOrderCreation() {
 
 
             const response = await axiosAuth.post(
-                `${auth.company}/order_master/add_order_master`,
+                `order_master/add_order_master`,
                 payload,
                 {
                     onUploadProgress: trackUploadProgress,

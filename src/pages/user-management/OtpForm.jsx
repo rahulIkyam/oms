@@ -43,7 +43,7 @@ const OTPForm = () => {
 
             try {
                 const response = await axios.post(
-                    `${base_url}/public/email/forget_password`,
+                    `${base_url}/email/forget_password`,
                     requestData
                 );
 
@@ -96,7 +96,7 @@ const OTPForm = () => {
 
             try {
                 const response = await axiosAuth.post(
-                    `/public/email/forget_password`,
+                    `/email/forget_password`,
                     requestData
                 );
 
@@ -139,7 +139,7 @@ const OTPForm = () => {
 
         try {
             const response = await axios.post(
-                `${base_url}/public/email/change_password`,
+                `${base_url}/email/change_password`,
                 payload
             );
             const data = response.data;

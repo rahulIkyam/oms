@@ -21,6 +21,8 @@ import CustomerViewOrder from './pages/Customer/CustomerViewOrder'
 import EmployeeOrderView from './pages/Employee/EmployeeOrderView'
 import EmployeeCustomerView from './pages/Employee/EmployeeCustomerView'
 import OTPForm from './pages/user-management/OtpForm'
+import OnboardingForm from './pages/OnboardingForm/onboarding-form'
+import OnboardingList from './pages/OnboardingForm/onboarding-list'
 
 // Protect route based on token
 const PrivateRoute = ({ children }) => {
@@ -51,12 +53,16 @@ const MainLayout = ({ children }) => {
       <Drawer isOpen={isDrawerOpen} onToggle={setDrawerOpen} />
       <Appbar isDrawerHidden={isDrawerHidden} toggleDrawer={() => setDrawerOpen(prev => !prev)} />
       <div className={`transition-all duration-700 ${isDrawerOpen ? "ml-60" : isDrawerSmall ? "ml-20" : "ml-0"} w-full`}>
-        <div className={`mt-16 ${isDrawerHidden ? 'pt-5 pl-5 pr-10' : 'pl-15 p-10 pr-15'} overflow-auto`}>
+        <div className={`mt-16 ${isDrawerHidden ? 'pt-5 pl-5 pr-10' : 'pl-15 p-1 pr-15'} overflow-auto`}>
           {children}
         </div>
       </div>
     </div>
   );
+}
+const SuperAdminRoute = ({ children }) => {
+  const role = localStorage.getItem('role');
+  return role === 'SUPER ADMIN' ? children : <Navigate to="/" replace />;
 }
 
 function App() {
@@ -66,7 +72,9 @@ function App() {
   const [isDrawerSmall, setSmallDrawer] = useState(window.innerWidth < 768 && window.innerWidth > 500);
   const [isDrawerHidden, setDrawerHidden] = useState(window.innerWidth <= 500);
   const isDarkMode = false;
-
+  const GetInitalRoute = () => {
+     return auth.role === 'SUPER ADMIN' ? <Navigate to="/onboardingList" replace /> : auth.role === 'Admin' ? <Navigate to="/user-list" replace /> : auth.role === 'Employee' ? <Navigate to="/employee-dashboard" replace /> : <Navigate to="/customer-dashboard" replace />
+  }
   const AdminRoute = ({ children }) => {
     const role = localStorage.getItem("role");
     return role === "Admin" ? children : <Navigate to="/" replace />;
@@ -90,17 +98,17 @@ function App() {
       <Routes>
         <Route path="/login" element={auth.token ? <Navigate to="/" replace /> : <Login />} />
         <Route path="/setPassword" element={<OTPForm />} />
-
+        <Route path="/onboarding" element={
+          <OnboardingForm></OnboardingForm>
+        } />
 
         <Route path="/*" element={
           <PrivateRoute>
             <MainLayout>
               <Routes>
-                <Route path="/" element={
-                  auth.role === 'Admin' ? <Navigate to="/user-list" replace /> :
-                    auth.role === 'Employee' ? <Navigate to="/employee-dashboard" replace /> :
-                      <Navigate to="/customer-dashboard" replace />
-                } />
+
+                <Route path="/" element={<GetInitalRoute></GetInitalRoute>} />
+                <Route path="/onboardingList" element={<SuperAdminRoute> <OnboardingList /> </SuperAdminRoute>} />
                 <Route path="/customer-dashboard" element={
                   <CustomerRoute>
                     <CustomerDashboard />

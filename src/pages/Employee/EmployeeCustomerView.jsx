@@ -28,13 +28,13 @@ function EmployeeCustomerView() {
     const fetchOrderByCustomer = async (page, limit) => {
         try {
             setIsLoading(true);
-            const response = await axiosAuth.get(`${auth.company}/order_master/get_all_ordermaster?page=${page}&limit=${limit}`);
+            const response = await axiosAuth.get(`order_master/get_all_ordermaster?page=${page}&limit=${limit}`);
 
             if (response.status === 200) {
-                const data = response.data;
-
+                const data = response.data;            
                 const matchedOrders = data.filter(order => order.customerId === customer.customer);
                 setOrderList(matchedOrders);
+                setFilteredOrders(matchedOrders);
 
                 setIsLoading(false);
             }

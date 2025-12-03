@@ -77,7 +77,7 @@ function EditUser() {
 
         try {
             const response = await axiosAuth.put(
-                `/public/user/edit-usermaster`,
+                `/user/edit-usermaster`,
                 requestData,
             );
             const data = response.data;

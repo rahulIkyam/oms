@@ -37,11 +37,10 @@ function CreateUser() {
     };
 
     const handlePostalCode = (e) => {
-        const input = e.target.value.replace(/\D/g, '');
-        if (input) {
-            setPostalCode(input);
-        }
-    }
+        const input = e.target.value.replace(/\D/g, ''); // remove non-digits
+        setPostalCode(input); // always update, even if empty
+    };
+
 
     const handleSubmit = async () => {
         const requestData2 = {
@@ -98,7 +97,7 @@ function CreateUser() {
         setLoading(true);
         try {
             const response = await axiosAuth.post(
-                `/public/user_master/add-usermaster`,
+                `/user_master/add-usermaster`,
                 requestData
             );
 

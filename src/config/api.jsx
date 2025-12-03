@@ -1,1 +1,0 @@
-export const base_url = "https://ordermanagement-empathic-mandrill-be.cfapps.us10-001.hana.ondemand.com/api";
